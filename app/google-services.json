@@ -15,6 +15,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "262421111647-afl0b7b3932ncgvuedttt83rl9srva9o.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.daydayseoul",
+            "certificate_hash": "60327bef85950d7b97206debe7834a374a76c741"
+          }
+        },
+        {
           "client_id": "262421111647-jo98ctue5iad5g26kr7pjp2bkedm89qq.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
