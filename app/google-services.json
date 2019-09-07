@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "262421111647",
+    "firebase_url": "https://daydayseoul-e5d4d.firebaseio.com",
+    "project_id": "daydayseoul-e5d4d",
+    "storage_bucket": "daydayseoul-e5d4d.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:262421111647:android:e615c2cd3a5f54af10ccea",
+        "android_client_info": {
+          "package_name": "com.example.daydayseoul"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "262421111647-jo98ctue5iad5g26kr7pjp2bkedm89qq.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.daydayseoul",
+            "certificate_hash": "7f92c480e71091c23235035f1e1db66a6da6d192"
+          }
+        },
+        {
+          "client_id": "262421111647-i78nr93nr4gkrb04cb6n9npaseuipkrm.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBPwa7g7z8-bSrK3X-NJe5YoyzTIPX-_1Y"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "262421111647-i78nr93nr4gkrb04cb6n9npaseuipkrm.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
