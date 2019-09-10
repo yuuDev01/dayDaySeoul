@@ -11,6 +11,7 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.example.daydayseoul.R;
+import com.example.daydayseoul.mypage.MyPageActivity;
 import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
@@ -36,14 +37,14 @@ import com.google.firebase.auth.GoogleAuthProvider;
 
 public class SignInActivity extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener {
 
+    private static final int RC_SIGN_IN = 10;
     private GoogleSignInClient mGoogleSignInClient;
-    private static final int RC_SIGN_IN = 9001;
     private FirebaseAuth mAuth;
 
     private EditText editTextEmail;
     private EditText editTextPassword;
-
     private CallbackManager mCallbackManager;
+    private FirebaseAuth.AuthStateListener mAuthListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,25 +80,99 @@ public class SignInActivity extends AppCompatActivity implements GoogleApiClient
         ////////////////////페북 로긴 부분 ///////////////////////////////////////////
         mCallbackManager = CallbackManager.Factory.create();
         LoginButton loginButton = findViewById(R.id.facebook_login_button);
-        loginButton.setReadPermissions("email", "public_profile");
+        loginButton.setReadPermissions("email");
+        // If using in a fragment
+        loginButton.setFragment(activity_sign_in);
+
+        // Callback registration
         loginButton.registerCallback(mCallbackManager, new FacebookCallback<LoginResult>() {
             @Override
             public void onSuccess(LoginResult loginResult) {
-                handleFacebookAccessToken(loginResult.getAccessToken());
+                // App code
             }
 
             @Override
             public void onCancel() {
-
+                // App code
             }
 
             @Override
-            public void onError(FacebookException error) {
-
+            public void onError(FacebookException exception) {
+                // App code
             }
-        });// ...
+        });
+
+        ////////////////////로그인 인증이 된 함수 //////////
+        mAuthListener = new FirebaseAuth.AuthStateListener() {
+            @Override
+            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+                FirebaseUser user = firebaseAuth.getCurrentUser();
+                if (user != null) {
+                    // User is signed in
+                    Intent intent = new Intent(SignInActivity.this, MyPageActivity.class);
+                    startActivity(intent);
+                    finish();
+                } else {
+                    // User is signed out
+                }
+                // [START_EXCLUDE]
+                // [END_EXCLUDE]
+            }
+        };
+
     }
 
+    private void handleFacebookAccessToken(AccessToken token) {
+
+        AuthCredential credential = FacebookAuthProvider.getCredential(token.getToken());
+        mAuth.signInWithCredential(credential)
+                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        if (task.isSuccessful()) {
+                         //   loginUser(email, password); //실패라 로그인
+                        } else {
+                            Toast.makeText(SignInActivity.this, "페북연동가입 성공", Toast.LENGTH_SHORT).show();
+                        }
+
+                        // ...
+                    }
+                });
+    }
+    ////////////////////일반 로긴 부분 ///////////////////////////////////////////
+    private void createUser(final String email, final String password) {
+        mAuth.createUserWithEmailAndPassword(email, password)
+                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        // If sign in fails, display a message to the user. If sign in succeeds
+                        // the auth state listener will be notified and logic to handle the
+                        // signed in user can be handled in the listener.
+                        if (!task.isSuccessful()) {
+                            loginUser(email, password); //실패라 로그인
+                        } else {
+                            Toast.makeText(SignInActivity.this, "회원가입 성공", Toast.LENGTH_SHORT).show();
+                        }
+
+                        // ...
+                    }
+                });
+    }
+
+    private void loginUser(String email, String password){
+        mAuth.signInWithEmailAndPassword(email, password)
+                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        if (task.isSuccessful()) {
+
+                        } else {
+
+                        }
+                        Toast.makeText(SignInActivity.this, "이메일 로그인 완료 성공", Toast.LENGTH_SHORT).show();
+                    }
+                });
+    }
     ////////////////////구글 로긴 부분 ///////////////////////////////////////////
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -133,47 +208,21 @@ public class SignInActivity extends AppCompatActivity implements GoogleApiClient
                     }
                 });
     }
-
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
 
     }
+    @Override
+    public void onStart() {
+        super.onStart();
+        mAuth.addAuthStateListener(mAuthListener);
 
-    ////////////////////일반 로긴 부분 ///////////////////////////////////////////
-    private void createUser(String email, String password) {
-        mAuth.createUserWithEmailAndPassword(email, password)
-                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        // If sign in fails, display a message to the user. If sign in succeeds
-                        // the auth state listener will be notified and logic to handle the
-                        // signed in user can be handled in the listener.
-                        if (!task.isSuccessful()) {
-                            Toast.makeText(SignInActivity.this, "회원가입 실패", Toast.LENGTH_SHORT).show();
-                        } else {
-                            Toast.makeText(SignInActivity.this, "회원가입 성공", Toast.LENGTH_SHORT).show();
-                        }
-
-                        // ...
-                    }
-                });
     }
-
-    private void handleFacebookAccessToken(AccessToken token) {
-
-        AuthCredential credential = FacebookAuthProvider.getCredential(token.getToken());
-        mAuth.signInWithCredential(credential)
-                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        if (task.isSuccessful()) {
-                            Toast.makeText(SignInActivity.this, "페북연동 실패", Toast.LENGTH_SHORT).show();
-                        } else {
-                            Toast.makeText(SignInActivity.this, "페북연동가입 성공", Toast.LENGTH_SHORT).show();
-                        }
-
-                        // ...
-                    }
-                });
+    @Override
+    public void onStop() {
+        super.onStop();
+        if (mAuthListener != null) {
+            mAuth.removeAuthStateListener(mAuthListener);
+        }
     }
 }
